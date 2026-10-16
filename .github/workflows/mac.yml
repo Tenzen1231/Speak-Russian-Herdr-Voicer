@@ -30,6 +30,7 @@ jobs:
           assert result['silence'] == '', result
           assert result['sharing_type'] == 0, result
           assert result['menu_items'] > 5, result
+          assert result['level'] >= 25, result  # status-bar level, above floating panels
           PY
 
       - name: One-line install as users run it

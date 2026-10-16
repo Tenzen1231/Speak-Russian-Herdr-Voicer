@@ -205,12 +205,13 @@ class App:
         y = self.config.get('mac_y', frame.origin.y + 110)
         self.panel = Panel.alloc().initWithContentRect_styleMask_backing_defer_(
             NSMakeRect(x, y, SIZE, SIZE), 0 | (1 << 7), NSBackingStoreBuffered, False)  # borderless, non-activating
-        self.panel.setLevel_(Q.CGWindowLevelForKey(Q.kCGStatusWindowLevelKey))
         self.panel.setOpaque_(False)
         self.panel.setBackgroundColor_(NSColor.clearColor())
         self.panel.setHasShadow_(False)
         self.panel.setHidesOnDeactivate_(False)
         self.panel.setFloatingPanel_(True)
+        # After setFloatingPanel_, which resets the level to NSFloatingWindowLevel.
+        self.panel.setLevel_(Q.CGWindowLevelForKey(Q.kCGStatusWindowLevelKey))
         self.panel.setBecomesKeyOnlyIfNeeded_(True)
         # all Spaces | stationary | ignored by Cmd+Tab/Exposé cycling | over full-screen apps
         self.panel.setCollectionBehavior_((1 << 0) | (1 << 4) | (1 << 6) | (1 << 8))
