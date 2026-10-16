@@ -1,0 +1,63 @@
+---
+license: mit
+language:
+- ru
+base_model:
+- ai-sage/GigaAM-v3
+pipeline_tag: automatic-speech-recognition
+tags:
+- automatic-speech-recognition
+- asr
+- onnx
+- onnx-asr
+---
+GigaAM v3 [models](https://github.com/salute-developers/GigaAM) converted to ONNX format for [onnx-asr](https://github.com/istupakov/onnx-asr).
+
+Install onnx-asr
+```shell
+pip install onnx-asr[cpu,hub]
+```
+
+Load GigaAM v3 CTC model and recognize wav file
+```py
+import onnx_asr
+model = onnx_asr.load_model("gigaam-v3-ctc")
+print(model.recognize("test.wav"))
+```
+
+Load GigaAM v3 RNN-T model and recognize wav file
+```py
+import onnx_asr
+model = onnx_asr.load_model("gigaam-v3-rnnt")
+print(model.recognize("test.wav"))
+```
+
+Load GigaAM v3 E2E CTC model (with punctuation and text normalization) and recognize wav file
+```py
+import onnx_asr
+model = onnx_asr.load_model("gigaam-v3-e2e-ctc")
+print(model.recognize("test.wav"))
+```
+
+Load GigaAM v3 E2E RNN-T model (with punctuation and text normalization) and recognize wav file
+```py
+import onnx_asr
+model = onnx_asr.load_model("gigaam-v3-e2e-rnnt")
+print(model.recognize("test.wav"))
+```
+
+Code for models export
+```py
+import gigaam
+from pathlib import Path
+
+onnx_dir = "gigaam-v3-onnx"
+model_version = "v3_rnnt" # or "v3_ctc"
+
+model = gigaam.load_model(model_version)
+model.to_onnx(dir_path=onnx_dir)
+
+with Path(onnx_dir, "v3_vocab.txt").open("wt") as f:
+    for i, token in enumerate(["\u2581", *(chr(ord("а") + i) for i in range(32)), "<blk>"]):
+        f.write(f"{token} {i}\n")
+```

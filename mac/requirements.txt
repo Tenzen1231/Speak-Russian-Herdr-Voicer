@@ -1,0 +1,11 @@
+numpy>=1.26
+onnxruntime>=1.18
+onnx-asr==0.12.0
+sounddevice>=0.5
+pillow>=10.4
+pyobjc-core>=10.3
+pyobjc-framework-Cocoa>=10.3
+pyobjc-framework-Quartz>=10.3
+pyobjc-framework-ApplicationServices>=10.3
+pyobjc-framework-AVFoundation>=10.3
+pyinstaller>=6.10

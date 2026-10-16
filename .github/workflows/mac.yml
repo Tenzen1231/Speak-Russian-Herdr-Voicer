@@ -1,0 +1,50 @@
+name: macOS
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install from this checkout
+        run: bash mac/install.sh --no-launch --no-autostart
+
+      - name: Recognize synthetic Russian speech with the installed app
+        run: |
+          ~/Applications/HerdrVoice.app/Contents/MacOS/HerdrVoice --diagnose \
+            "$PWD/mac/tests/speech-ru.wav" "$RUNNER_TEMP/result.json"
+          cat "$RUNNER_TEMP/result.json"
+          python3 - "$RUNNER_TEMP/result.json" <<'PY'
+          import json, sys
+          result = json.load(open(sys.argv[1], encoding='utf-8'))
+          assert 'голосового ввода' in result['text'].lower(), result
+          assert result['silence'] == '', result
+          assert result['sharing_type'] == 0, result
+          assert result['menu_items'] > 5, result
+          PY
+
+      - name: One-line install as users run it
+        if: matrix.os == 'macos-15' && github.ref_name == 'main'
+        run: |
+          rm -rf ~/Applications/HerdrVoice.app
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/mac/install.sh" \
+            | HERDR_BRANCH=main bash -s -- --no-launch --no-autostart
+          test -x ~/Applications/HerdrVoice.app/Contents/MacOS/HerdrVoice
+
+  core-tests:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --quiet numpy
+          "$RUNNER_TEMP/venv/bin/python" -m unittest discover -s core/tests
